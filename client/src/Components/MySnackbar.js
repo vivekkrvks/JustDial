@@ -1,11 +1,15 @@
-import React, { useImperativeHandle, Suspense } from "react";
+import React, { useImperativeHandle } from "react";
 import clsx from "clsx";
-import { makeStyles, IconButton, Snackbar, SnackbarContent } from "@mui/material";
+import { createStyles } from '@mui/styles';
+
+import { IconButton, Snackbar, SnackbarContent } from "@mui/material";
 import { amber, green } from "@mui/material/colors";
 import { MdError, MdInfo, MdClose, MdWarning, MdCheckCircle } from "react-icons/md";
 import { useState } from "react";
 import { forwardRef } from "react";
-
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+  
+	  const theme = createTheme();
 const variantIcon = {
 	success: MdCheckCircle,
 	warning: MdWarning,
@@ -13,15 +17,15 @@ const variantIcon = {
 	info: MdInfo,
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = createStyles((theme) => ({
 	success: {
 		backgroundColor: green[600],
 	},
 	error: {
-		backgroundColor: theme.palette.error.dark,
+		backgroundColor: amber[700],
 	},
 	info: {
-		backgroundColor: theme.palette.primary.main,
+		backgroundColor: amber[700],
 	},
 	warning: {
 		backgroundColor: amber[700],
@@ -31,14 +35,14 @@ const useStyles = makeStyles((theme) => ({
 	},
 	iconVariant: {
 		opacity: 0.9,
-		marginRight: theme.spacing(1),
+		marginRight: 1,
 	},
 	message: {
 		display: "flex",
 		alignItems: "center",
 	},
 	margin: {
-		margin: theme.spacing(1),
+		margin: 1,
 	},
 }));
 
@@ -55,7 +59,7 @@ const MySnackbar = forwardRef((props, ref) => {
 	}));
 
 	return (
-		<Suspense fallback={null}>
+		<ThemeProvider theme={theme}>
 			<Snackbar
 				anchorOrigin={{
 					vertical: "bottom",
@@ -81,7 +85,7 @@ const MySnackbar = forwardRef((props, ref) => {
 					]}
 				/>
 			</Snackbar>
-		</Suspense>
+		</ThemeProvider>
 	);
 });
 

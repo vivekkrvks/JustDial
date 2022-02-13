@@ -42,11 +42,11 @@ import Copyright from "./../General/copyright"
 				  <Grid item xs={12} sm={12}>
 					<TextField
 					  autoComplete="given-name"
-					  name="firstName"
+					  name="Name"
 					  required
 					  fullWidth
-					  id="firstName"
-					  label="First Name"
+					  id="Name"
+					  label="Name"
 					  autoFocus
 					/>
 				  </Grid>
