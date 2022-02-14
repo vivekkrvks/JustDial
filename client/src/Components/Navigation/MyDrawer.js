@@ -13,10 +13,15 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import CategoryIcon from '@mui/icons-material/Category';
+import ApprovalIcon from '@mui/icons-material/Approval';
+import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { red } from '@mui/material/colors';
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -166,15 +171,15 @@ export default function MyDrawer() {
 }
 
 const listData1 = [
-	{ text: "Dashboard", link: "/dashboard", icon: <InboxIcon /> },
-	{ text: "First Page", link: "/firstpage", icon: <MailIcon /> },
-	{ text: "Add Category", link: "/Add Category", icon: <InboxIcon /> },
-	{ text: "Add SubCategory", link: "/Add Sub Category", icon: <MailIcon />,Supervisor:true },
+	{ text: "Dashboard", link: "/dashboard", icon: <DashboardIcon color="primary"  /> },
+	{ text: "Add Category", link: "/Add Category", icon: <CategoryIcon color="success" /> },
+	{ text: "Add SubCategory", link: "/Add Sub Category", icon: <ApprovalIcon color="success" />,Supervisor:true },
+	{ text: "Add AddVendor", link: "/Add AddVendor", icon: <ControlPointDuplicateIcon color="success" />,Supervisor:true },
 
 ];
 const listData2 = [
-	{ text: "Sign Up", link: "/signup", icon: <InboxIcon /> },
-	{ text: "Login", link: "/login", icon: <MailIcon /> },
+	{ text: "Sign Up", link: "/signup", icon: <LoginIcon color="success"/> },
+	{ text: "Login", link: "/login", icon: <LogoutIcon sx={{ color: red[500] }}/> },
 
 
 ];

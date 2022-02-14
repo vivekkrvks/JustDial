@@ -3,13 +3,13 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jsonwt = require("jsonwebtoken");
 const passport = require("passport");
-const key = require("../../setup/myurl");
+const key = require("../../../setup/myurl");
 const jwt_decode = require("jwt-decode");
-const User = require("../../models/User")
+const User = require("../../../models/User")
 const axios = require("axios")
 
 // route to send otp
-// /api/auth/user/sendotp
+// /api/v1/auth/user/sendotp
 router.post('/user/sendotp',(req,res) => {
 
   let mNo = req.body.mobileNo 
@@ -35,7 +35,7 @@ const getFOtp1 = (req,res,mNo) => {
   const t = process.env.TEMP1
   
   axios
-  .post(`https://api.msg91.com/api/v5/otp?invisible=1&authkey=${auKey}&mobile=${mNo}&template_id=${t}`)
+  .post(`https://api.msg91.com/api/v1/v5/otp?invisible=1&authkey=${auKey}&mobile=${mNo}&template_id=${t}`)
 
     .then(rest => {if(rest.data.type == "success"){
       res.json({
@@ -51,7 +51,7 @@ const getFOtp1 = (req,res,mNo) => {
     .catch((err) => console.log(err));
 }
 // route to verify otp may be login or signUp
-// /api/auth/user/loginWithOtp
+// /api/v1/auth/user/loginWithOtp
 router.post('/user/loginWithOtp',(req,res) => {
   if (req.body.mobileNo && req.body.otp){
     if(req.body.otp == 0000){
@@ -73,7 +73,7 @@ const verifyOtp = (req,res ) => {
   const OTP = req.body.otp
   
   axios
-  .post(`https://api.msg91.com/api/v5/otp/verify?otp=${OTP}&authkey=${auKey}&mobile=${mNo}`)
+  .post(`https://api.msg91.com/api/v1/v5/otp/verify?otp=${OTP}&authkey=${auKey}&mobile=${mNo}`)
 
     .then(rest => {
       if(rest.data.type == "success"){
@@ -183,7 +183,7 @@ const sendLoginKey = (req,res,user) => {
   });
 }
 // Route to Login With Password
-// /api/auth/user/loginWithPassword
+// /api/v1/auth/user/loginWithPassword
 router.post('/user/loginWithPassword',(req,res) => {
   let password = req.body.password
   if(req.body.loginId && req.body.password){
@@ -223,7 +223,7 @@ router.post('/user/loginWithPassword',(req,res) => {
 })
 
 // Route to Register User 
-// /api/auth/register/user
+// /api/v1/v1/auth/register/user
 router.post('/register/user', (req,res) => {
   var str = req.body.name;
 //Now I separate them by "|"
@@ -305,7 +305,7 @@ return text;
 
 // route to update User
 //
-// /api/auth/register/user/
+// /api/v1/auth/register/user/
 router.post(
   "/register/user/:id",
   passport.authenticate("jwt", { session: false }),
