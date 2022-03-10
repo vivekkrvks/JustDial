@@ -172,13 +172,13 @@ export default function MyDrawer() {
          </Link> ))}
          {state.isAuthenticated ? (
 				 <Link onClick={handleLogout} color="inherit" underline="hover">
-         <ListItem button key="Sign Up">
-         <Tooltip title="Sign Up" placement="right">
+         <ListItem button key="LogOut">
+         <Tooltip title="LogOut" placement="right">
      <ListItemIcon>
-     <CategoryIcon color="success" />
+     <LogoutIcon sx={{ color: red[500] }}/>
      </ListItemIcon>
      </Tooltip>
-     <ListItemText primary="Sign Up" />
+     <ListItemText primary="LogOut" />
    </ListItem>
  </Link>
 				) : (
@@ -186,7 +186,7 @@ export default function MyDrawer() {
           <ListItem button key="Log In">
           <Tooltip title="Log In" placement="right">
       <ListItemIcon>
-      <CategoryIcon color="Log In" />
+      <LoginIcon color="success"/>
       </ListItemIcon>
       </Tooltip>
       <ListItemText primary="Log In" />
@@ -210,7 +210,7 @@ const listData1 = [
 ];
 const listData2 = [
 	{ text: "Sign Up", link: "/signup", icon: <LoginIcon color="success"/> },
-	{ text: "Login", link: "/login", icon: <LogoutIcon sx={{ color: red[500] }}/> },
+	// { text: "Login", link: "/login", icon: <LogoutIcon sx={{ color: red[500] }}/> },
 
 
 ];
