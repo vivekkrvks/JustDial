@@ -15,18 +15,31 @@ const CategorySchema = new Schema({
        type:String,
        required:true
    },
+   image:{
+       url:{
+        type:String,
+        // required:true
+       },
+       publicId:{
+        type:String,
+        // required:true
+       }
+   },
    logo:{
-       type:String,
-       required:true
+       url:{
+        type:String,
+        // required:true
+       },
+       publicId:{
+        type:String,
+        // required:true
+       }
    },
    description:{
        type:String,
        default:""
    },
-   image:{
-       type:String,
-       default:""
-   },
+
    date: {
     type: Date,
     default: Date.now

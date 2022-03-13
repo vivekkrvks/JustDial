@@ -17,11 +17,12 @@ const SubCategory = require("../../../../models/Addition/SubCategory");
 // @access  PRIVATE
 router.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     
     const categoryValues = {
-      
+      image:{},
+      logo:{}
     };
     categoryValues.user = req.user.id;
     categoryValues.creationDate = new Date();
@@ -32,20 +33,13 @@ router.post(
     var rests = strs.replace(/  | |   |    |      /gi, function (x) {
       return  "";
     });
+
     categoryValues.link = rests.toLowerCase()
-// link end
-if (req.body.image == ""){
-  categoryValues.image = img.defaultPoster;
+    categoryValues.image.url = req.body.imageUrl;
+    categoryValues.image.publicId = req.body.imageId;
+    categoryValues.logo.url = req.body.logoUrl;
+    categoryValues.logo.publicId = req.body.logoId;
 
-} else {
-  categoryValues.image = req.body.image;
-}
-if (req.body.logo == "" ){
-  categoryValues.logo = img.defaultLogo;
-
-} else {
-  categoryValues.logo = req.body.logo;
-}
 
 if (req.body.description == ""){
   categoryValues.description = "";
@@ -54,8 +48,6 @@ if (req.body.description == ""){
   categoryValues.description = req.body.description;
   
 }
-
-  
     //getting last voucher number and making new one 
 
     //Do database stuff
@@ -65,12 +57,12 @@ if(
 ){
 
   res.json({
-    message: "Title, logo, link are Required field",
+    message: "Title, link are Required field",
     variant: "error"
 })
 
   
-    } else {0
+    } else {
     
           Category.findOne({
             categoryName: categoryValues.categoryName
@@ -121,7 +113,7 @@ if(
 
 router.get(
   "/allcategory",
- 
+  // passport.authenticate("jwt", { session: false }),
   (req, res) => {
     Category.find({})
       .sort({ date: -1 })
@@ -142,7 +134,7 @@ router.get(
   "/get/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    Category.find({
+    Category.findOne({
       _id: req.params.id
     }).then(Category => res.json(Category)).catch(err => res.json({message: "Problem in finding With this Id", variant: "error"}));
   }
@@ -153,7 +145,6 @@ router.get(
 // @desc    route to update/edit category
 // @access  PRIVATE
 async function updateMe(req,res,categoryValues){
-  var des = req.user.designation;
  if (des == "Admin" ) {
   Category.findOneAndUpdate(
     { _id: req.params.id },
@@ -276,6 +267,32 @@ res.json({message: "This Link Already Exist", variant: "error"})
   }}
 );
 
+///////
+// /api/v1/addition/category/delete/:id
+router.delete(
+  "/delete/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+
+    const id = req.params.id;
+    Category.findOne({ _id: id }).then(catData => {
+      if (catData) {
+        Category.findOneAndDelete({ _id: id })
+          .then(() =>
+            res.json({ message: "Deleted successfully", variant: "success" })
+          )
+          .catch(err =>
+            res.json("Failed to delete due to this error - " + err)
+          );
+      } else {
+        res
+          .status(400)
+          .json({ message: "category Not Found", variant: "error" });
+      }
+    });
+ 
+  }
+);
 
 // @type    GET
 //@route    /api/v1/addition/category/allcategory/:searchcategory

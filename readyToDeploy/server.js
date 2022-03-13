@@ -5,17 +5,27 @@ const passport = require("passport");
 const upload = require("express-fileupload");
 const cors = require("cors");
 const path = require("path");
+const cloudinary = require("cloudinary").v2;
 
 require('dotenv/config')
 
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
+});
+
 const cookieSession = require('cookie-session')
+
 
 //bring all routes
 const auth = require("./routes/api/v1/auth");
 // Addition
 const category = require("./routes/api/v1/addition/category");
-const subcategory = require("./routes/api/v1/addition/subcategory");
 
+const subcategory = require("./routes/api/v1/addition/subcategory");
+// other
+const fileUpload = require("./routes/api/v1/other/fileUpload");
 //passport 
 // const passport = require("./services/passport")
 const app = express();
@@ -63,7 +73,8 @@ app.use("/api/v1/auth", auth);
 // Addition
 app.use("/api/v1/addition/category", category);
 app.use("/api/v1/addition/subcategory", subcategory);
-
+// other
+app.use("/api/v1/other/fileUpload", fileUpload);
 
 
 

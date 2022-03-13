@@ -15,23 +15,27 @@ import {
 	TableBody,
 	TableFooter,
 	TablePagination,
-	Input,
 	Divider,
 } from "@mui/material";
+import ImagePreviewDelete from "./../../../Components/Common/ImagePreviewDelete";
+
 import axios from "axios";
-import { MdSearch, MdDoneAll, MdClearAll, MdPanorama } from "react-icons/md";
+import { MdSearch, MdDoneAll, MdClearAll, MdPanorama, MdLock, MdPublic, MdDeleteForever } from "react-icons/md";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CommonDash from "./../../MyDashboard/CommonDash"
-import SearchBar from "./../../../Components/Common/SearchBar";
-	  const theme = createTheme();
+import  {Search, StyledInputBase,SearchIconWrapper} from "./../../../Components/Common/SearchBar";
+import SearchIcon from '@mui/icons-material/Search';;
+const theme = createTheme();
 
 export default function AddCategory() {
 	const classes = useStyles();
 	const [id, setId] = useState("");
-	const [title, setTitle] = useState("");
+	const [categoryName, setCategoryName] = useState("");
 	const [link, setLink] = useState("");
-	const [highlight, setHighlight] = useState("");
-	const [image, setImage] = useState("");
+	const [imageUrl, setImageUrl] = useState("");
+	const [imageId, setImageId] = useState("");
+	const [logoUrl, setLogoUrl] = useState("");
+	const [logoId, setLogoId] = useState("");
 	const [description, setDescription] = useState("");
 	const [allCat, setAllCat] = useState([]);
 	const [page, setPage] = useState(0);
@@ -43,63 +47,106 @@ export default function AddCategory() {
 	}, []);
 	const getData = async (word) => {
 		await axios
-			.get(`/api/test/category/allcategory/${word}`)
-			.then((res) => setAllCat(res.data))
+			.get(`/api/v1/addition/category/allcategory/${word}`)
+			.then((res) => (setAllCat(res.data),console.log(`/api/v1/addition/category/allcategory/${word}`)))
 			.catch((err) => console.log(err));
 	};
+
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		let newCat = { _id: id, categoryTitle: title, highlight, image, link, description };
+		let newCat = { _id: id, categoryName,link, imageUrl,imageId, logoUrl,logoId, description };
 		await axios
-			.post(`/api/test/category/${id}`, newCat)
+			.post(`/api/v1/addition/category/${id}`, newCat)
 			.then((res) => {
 				snackRef.current.handleSnack(res.data);
 				getData("");
-				handleClear();
+				if(res.data.variant==="success"){
+					handleClear();
+
+				}
 			})
 			.catch((err) => console.log(err));
 	};
 	const handleClear = () => {
 		setId("");
-		setTitle("");
+		setCategoryName("");
 		setLink("");
-		setImage("");
-		setHighlight("");
+		setImageUrl("");
+		setImageId("");
+		setLogoUrl("");
+		setLogoId("");
 		setDescription("");
 	};
+	const clearImage = () => { 
+
+		setImageUrl("");
+		setImageId("");
+	}
+	const clearLogo = () => {
+
+		setLogoUrl("");
+		setLogoId("");
+	}
 	const setData = async (id) => {
 		await axios
-			.get(`/api/test/category/get/${id}`)
+			.get(`/api/v1/addition/category/get/${id}`)
 			.then((res) => {
-				setId(res.data[0]._id);
-				setTitle(res.data[0].categoryTitle);
-				setLink(res.data[0].link);
-				setImage(res.data[0].image);
-				setHighlight(res.data[0].highlight);
-				setDescription(res.data[0].description);
+				setId(res.data._id);
+				setCategoryName(res.data.categoryName);
+				setLink(res.data.link);
+				setImageUrl(res.data.image.url);
+				setImageId(res.data.image.publicId);
+				setLogoUrl(res.data.logo.url);
+				setLogoId(res.data.logo.publicId);				
+				setDescription(res.data.description);
 			})
 			.catch((err) => console.log(err));
 	};
-	const imgUpload = async (e) => {
+	const imgUpload = async (e, name) => {
 		if (e) {
 			const selectedFile = e;
 			const imgData = new FormData();
 			imgData.append("photo", selectedFile, selectedFile.name);
-			await axios
-				.post(`/api/other/fileupload/upload`, imgData, {
-					headers: {
-						accept: "application/json",
-						"Accept-Language": "en-US,en;q=0.8",
-						"Content-Type": `multipart/form-data; boundary=${imgData._boundary}`,
-					},
-				})
-				.then((res) => setImage(res.data.result.secure_url))
-				.catch((err) => console.log(err));
+			let link = `/api/v1/other/fileupload/mainfolder/:folderName`
+			if(name === "image"){
+				link = `/api/v1/other/fileupload/mainfolder/categoryImage`
+			} else if(name === "logo"){
+				link = `/api/v1/other/fileupload/mainfolder/categoryLogo`
+			}
+			
+				await axios
+					.post(link, imgData, {
+						headers: {
+							accept: "application/json",
+							"Accept-Language": "en-US,en;q=0.8",
+							"Content-Type": `multipart/form-data; boundary=${imgData._boundary}`,
+						},
+					})
+					.then((res) => {
+						if (name === "image") {
+							setImageUrl(res.data.result.secure_url)
+							setImageId(res.data.result.public_id)
+						}else if (name === "logo") {
+							setLogoUrl(res.data.result.secure_url)
+							setLogoId(res.data.result.public_id)
+						}
+					
+					})
+					.catch((err) => console.log(err));
+			
 		}
+	};
+	const handleDelete = (id) => {
+		axios
+			.delete(`/api/v1/addition/category/delete/${id}`)
+			.then((res) => alert(res.data.message))
+			.then(() => getData(""))
+			.catch((err) => console.log(err));
+		handleClear();
 	};
 	const handleErr = (errIn) => {
 		switch (errIn) {
-			case "title":
+			case "categoryName":
 				// if(title.length  < 10){
 				//     setErr({errIn:"mobileNo", msg:"Enter 10 Digits Mobile No."})
 				// }else setErr({errIn:"", msg:""})
@@ -124,47 +171,89 @@ export default function AddCategory() {
 								</center>
 							</Grid>
 							<Grid item xs={4}></Grid>
-							<Grid item xs={12}>
+							<Grid item xs={6}>
 								<TextField
 									variant="outlined"
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Category Title"}
+									onBlur={() => handleErr("categoryName")}
+									error={err.errIn === "categoryName" ? true : false}
+									label={err.errIn === "categoryName" ? err.msg : "Category Name"}
 									placeholder="Name of the Category.."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={categoryName}
+									onChange={(e) => setCategoryName(e.target.value)}
+								/>
+							</Grid>
+							<Grid item xs={6}>
+								<TextField
+									variant="outlined"
+									required
+									fullWidth
+									inputProps={{ maxLength: "42" }}
+									onBlur={() => handleErr("linkName")}
+									error={err.errIn === "linkName" ? true : false}
+									label={err.errIn === "Link" ? err.msg : "Category link"}
+									placeholder="Link of the Category.."
+									value={link}
+									onChange={(e) => setLink(e.target.value)}
 								/>
 							</Grid>
 						
+							<Grid item xs={12} md={6}>
+							{logoUrl !== "" && (
+							<ImagePreviewDelete 
+							type ={"Logo"} 
+							imageLink={logoUrl} 
+							imageId={logoId} 
+							clearImage ={clearImage} 
+							clearLogo={clearLogo}/>
+
+							)} 
+							{
+								logoUrl === "" && (
+									<TextField
+									// required
+										variant="outlined"
+										type="file"
+										InputLabelProps={{ shrink: true }}
+										inputProps={{ accept: "image/png*" }}
+										fullWidth
+										onBlur={() => handleErr("logo")}
+										error={err.errIn === "logo" ? true : false}
+										label={err.errIn === "logo" ? err.msg : "Logo (PNG Only)"}
+										onChange={(e) =>  imgUpload(e.target.files[0],"logo")}
+									/> 
+								)
+							}			
+	  						</Grid>
 							<Grid item xs={6}>
-								<TextField
-								required
-									variant="outlined"
-									type="file"
-									InputLabelProps={{ shrink: true }}
-									inputProps={{ accept: "image/*" }}
-									fullWidth
-									onBlur={() => handleErr("image")}
-									error={err.errIn === "image" ? true : false}
-									label={err.errIn === "image" ? err.msg : "Logo "}
-									onChange={(e) => imgUpload(e.target.files[0])}
-								/>
-							</Grid>
-							<Grid item xs={6}>
-								<TextField
-									variant="outlined"
-									type="file"
-									InputLabelProps={{ shrink: true }}
-									inputProps={{ accept: "image/*" }}
-									fullWidth
-									onBlur={() => handleErr("image")}
-									error={err.errIn === "image" ? true : false}
-									label={err.errIn === "image" ? err.msg : "Image "}
-									onChange={(e) => imgUpload(e.target.files[0])}
-								/>
+							{imageUrl !== "" && (
+							<ImagePreviewDelete 
+							type ={"Image"} 
+							imageLink={imageUrl} 
+							imageId={imageId}
+							clearImage ={clearImage} 
+							clearLogo={clearLogo}/>
+							  
+
+							)} 
+							{
+								imageUrl === "" && (
+									<TextField
+									// required
+										variant="outlined"
+										type="file"
+										InputLabelProps={{ shrink: true }}
+										inputProps={{ accept: "image/*" }}
+										fullWidth
+										onBlur={() => handleErr("image")}
+										error={err.errIn === "image" ? true : false}
+										label={err.errIn === "image" ? err.msg : "Category Image"}
+										onChange={(e) => imgUpload(e.target.files[0],"image")}
+									/> 
+								)
+							}
 							</Grid>
 							<Grid item xs={12}>
 								<TextField
@@ -193,15 +282,14 @@ export default function AddCategory() {
 											<MdClearAll />
 										</Fab>
 									</Tooltip>
-									{image !== "" && (
-										<a href={image} target="_blank" rel="noopener noreferrer">
-											<Tooltip title="Image">
-												<Fab size="small" color="secondary" className={classes.button}>
-													<MdPanorama />
+									{id !== "" && (
+											<Tooltip title="Delete Forever">
+												<Fab size="small" color="secondary" onClick={() => handleDelete(id)} className={classes.button}>
+													<MdDeleteForever />
 												</Fab>
 											</Tooltip>
-										</a>
-									)}
+										)}
+						
 								</center>
 							</Grid>
 						</Grid>
@@ -211,7 +299,18 @@ export default function AddCategory() {
 			<Grid item xs={12} md={4}>
 				{/* Search Section */}
 				<div className={classes.search}>
-				<SearchBar name={ "Category"} />
+				<Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder= {`Search Category...`}
+			  onChange={(e) => getData(e.target.value)}
+			   
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </Search>
+				{/* <SearchBar name={ "Category"}  onChange={(e) => getData(e.target.value)} /> */}
 				
 				</div>
 				<div className={classes.searchResult}>
@@ -228,7 +327,7 @@ export default function AddCategory() {
 								{allCat.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((data) => (
 									<TableRow key={data._id} onClick={() => setData(data._id)} hover>
 										<TableCell component="td" scope="row">
-											Name : {data.categoryTitle} <br />
+											Name : {data.categoryName} ; Description : {data.description} <br />
 										</TableCell>
 									</TableRow>
 								))}
