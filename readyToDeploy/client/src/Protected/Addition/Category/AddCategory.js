@@ -24,7 +24,9 @@ import { MdSearch, MdDoneAll, MdClearAll, MdPanorama, MdLock, MdPublic, MdDelete
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CommonDash from "./../../MyDashboard/CommonDash"
 import  {Search, StyledInputBase,SearchIconWrapper} from "./../../../Components/Common/SearchBar";
-import SearchIcon from '@mui/icons-material/Search';;
+import SearchIcon from '@mui/icons-material/Search';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 const theme = createTheme();
 
 export default function AddCategory() {
@@ -42,24 +44,34 @@ export default function AddCategory() {
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [err] = useState({ errIn: "", msg: "" });
 	const snackRef = useRef();
+	const [open, setOpen] = useState(false);
+	const handleClose = () => {
+	  setOpen(false);
+	};
+	const handleOpen = () => {
+	  setOpen(true);
+	};
 	useEffect(() => {
 		getData("");
 	}, []);
 	const getData = async (word) => {
+	
 		await axios
 			.get(`/api/v1/addition/category/allcategory/${word}`)
-			.then((res) => (setAllCat(res.data),console.log(`/api/v1/addition/category/allcategory/${word}`)))
+			.then((res) => (setAllCat(res.data)))
 			.catch((err) => console.log(err));
 	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		handleOpen();
 		let newCat = { _id: id, categoryName,link, imageUrl,imageId, logoUrl,logoId, description };
 		await axios
 			.post(`/api/v1/addition/category/${id}`, newCat)
 			.then((res) => {
 				snackRef.current.handleSnack(res.data);
 				getData("");
+				handleClose()
 				if(res.data.variant==="success"){
 					handleClear();
 
@@ -88,6 +100,7 @@ export default function AddCategory() {
 		setLogoId("");
 	}
 	const setData = async (id) => {
+		handleOpen();
 		await axios
 			.get(`/api/v1/addition/category/get/${id}`)
 			.then((res) => {
@@ -99,8 +112,10 @@ export default function AddCategory() {
 				setLogoUrl(res.data.logo.url);
 				setLogoId(res.data.logo.publicId);				
 				setDescription(res.data.description);
+				
 			})
 			.catch((err) => console.log(err));
+			handleClose();
 	};
 	const imgUpload = async (e, name) => {
 		if (e) {
@@ -161,9 +176,19 @@ export default function AddCategory() {
 			<Fragment>
 		<Grid container>
 			<Grid item xs={12} md={8}>
+	
 				<Paper className={classes.entryArea}>
+					
+				<Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={open}
+        onClick={handleClose}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
 					<form onSubmit={(e) => handleSubmit(e)} style={{ maxWidth: "100vw" }}>
 						<Grid container spacing={2}>
+							
 							<Grid item xs={4}></Grid>
 							<Grid item xs={4}>
 								<center>
@@ -207,7 +232,9 @@ export default function AddCategory() {
 							imageLink={logoUrl} 
 							imageId={logoId} 
 							clearImage ={clearImage} 
-							clearLogo={clearLogo}/>
+							clearLogo={clearLogo}
+							dataId={id}
+							/>
 
 							)} 
 							{
@@ -234,7 +261,9 @@ export default function AddCategory() {
 							imageLink={imageUrl} 
 							imageId={imageId}
 							clearImage ={clearImage} 
-							clearLogo={clearLogo}/>
+							clearLogo={clearLogo}
+							dataId={id}
+							/>
 							  
 
 							)} 

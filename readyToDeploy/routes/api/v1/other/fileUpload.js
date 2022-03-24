@@ -31,7 +31,7 @@ app.post("/delete", function(req, res, next) {
   cloudinary.uploader.destroy(id, function(error,result)  { 
     console.log({error,result})
     if(result){
-      if(result.result== "ok"){
+      if(result.result== "ok" || result.result== "not found"){
         res.json({ message: "Deleted Succesfully ",
         variant: "success" });
       } else {

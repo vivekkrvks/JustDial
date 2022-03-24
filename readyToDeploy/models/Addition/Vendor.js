@@ -2,8 +2,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const VendorDetailsSchema = new Schema({
-    house:{
+const VendorSchema = new Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "myUser"
+      },
+    link:{
        type:String,
        default:""
    },
@@ -43,7 +47,7 @@ const VendorDetailsSchema = new Schema({
        type:String,
        default:""
    },
-   ContactNo:{
+   contactNo:{
        type:String,
        default:""
    },
@@ -60,29 +64,46 @@ const VendorDetailsSchema = new Schema({
        default:""
    },
    category:{
-       type:String,
-       default:""
-   },
-   subcategory:{
-       type:String,
-       default:""
-   },
+    categoryName:{
+        type:String,
+     //    required:true
+    },
+    link:{
+         type:String,
+         // required:true
+    }
+ 
+ },
+subCategory:{
+ subCategoryName:{
+        type:String,
+     //    required:true
+    },
+    link:{
+         type:String,
+         // required:true
+    }
+ 
+ },
    services:{
-       type:String,
-       default:""
-   },
-   description:{
-       type:String,
-       default:""
-   },
-   modsofPayment:{
-       type:String,
-       default:""
+    serviceName:{
+        type:String,
+     //    required:true
+    },
+    link:{
+         type:String,
+         // required:true
+    }
    },
    yearEstablished:{
+    type:String,
+    default:""
+},
+   modesofPayment:{
        type:String,
        default:""
    },
+ 
    // to be auto detucted
    latitude:{
        type:String,
@@ -104,7 +125,7 @@ const VendorDetailsSchema = new Schema({
 
 });
 
-module.exports = VendorDetails = mongoose.model("myVendorDetails", VendorDetailsSchema);
+module.exports = Vendor = mongoose.model("myVendor", VendorSchema);
 
 
-// /VendorDetails
+// /Vendor

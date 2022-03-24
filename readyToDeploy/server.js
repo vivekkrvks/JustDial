@@ -24,7 +24,9 @@ const auth = require("./routes/api/v1/auth");
 const category = require("./routes/api/v1/addition/category");
 
 const subcategory = require("./routes/api/v1/addition/subcategory");
+const myServices = require("./routes/api/v1/addition/myServices");
 // other
+const primaryDdd = require("./routes/api/v1/other/primaryDdd");
 const fileUpload = require("./routes/api/v1/other/fileUpload");
 //passport 
 // const passport = require("./services/passport")
@@ -73,8 +75,10 @@ app.use("/api/v1/auth", auth);
 // Addition
 app.use("/api/v1/addition/category", category);
 app.use("/api/v1/addition/subcategory", subcategory);
+app.use("/api/v1/addition/myServices", myServices);
 // other
 app.use("/api/v1/other/fileUpload", fileUpload);
+app.use("/api/v1/other/primaryDdd", primaryDdd);
 
 
 

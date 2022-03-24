@@ -7,7 +7,7 @@ const img = require("../../../../setup/myimageurl")
 //Load User Model
 const User = require("../../../../models/User");
 
-
+//Load SubCategory.js Model
 const SubCategory = require("../../../../models/Addition/SubCategory");
 
 // @type    POST
@@ -16,36 +16,32 @@ const SubCategory = require("../../../../models/Addition/SubCategory");
 // @access  PRIVATE
 router.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
+   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     
     const subCategoryValues = {
-      
+      image:{},
+      logo:{},
+      category:{}
     };
     subCategoryValues.user = req.user.id;
     subCategoryValues.creationDate = new Date();
     subCategoryValues.subCategoryName = req.body.subCategoryName;
-    subCategoryValues.categoryName = req.body.categoryName;
 //link start
 
     var strs = req.body.link;
     var rests = strs.replace(/  | |   |    |      /gi, function (x) {
       return  "";
     });
+    subCategoryValues.category.categoryName = req.body.category.categoryName;
+    subCategoryValues.category.link = req.body.category.link;
+
     subCategoryValues.link = rests.toLowerCase()
-// link end
-if (req.body.image == ""){
-  subCategoryValues.image = img.defaultPoster;
+    subCategoryValues.image.url = req.body.imageUrl;
+    subCategoryValues.image.publicId = req.body.imageId;
+    subCategoryValues.logo.url = req.body.logoUrl;
+    subCategoryValues.logo.publicId = req.body.logoId;
 
-} else {
-  subCategoryValues.image = req.body.image;
-}
-if (req.body.logo == "" ){
-  subCategoryValues.logo = img.defaultLogo;
-
-} else {
-  subCategoryValues.logo = req.body.logo;
-}
 
 if (req.body.description == ""){
   subCategoryValues.description = "";
@@ -54,8 +50,6 @@ if (req.body.description == ""){
   subCategoryValues.description = req.body.description;
   
 }
-
-  
     //getting last voucher number and making new one 
 
     //Do database stuff
@@ -65,7 +59,7 @@ if(
 ){
 
   res.json({
-    message: "Title, logo, link are Required field",
+    message: "Title, link are Required field",
     variant: "error"
 })
 
@@ -115,13 +109,13 @@ if(
 );
 
 // @type    GET
-//@route    /api/v1/addition/subCategory/allsubcategory
+//@route    /api/v1/addition/subCategory/allsubCategory
 // @desc    route for getting all data from  subCategory
 // @access  PRIVATE
 
 router.get(
-  "/allsubcategory",
- 
+  "/allsubCategory",
+  // passport.authenticate("jwt", { session: false }),
   (req, res) => {
     SubCategory.find({})
       .sort({ date: -1 })
@@ -142,7 +136,7 @@ router.get(
   "/get/:id",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    SubCategory.find({
+    SubCategory.findOne({
       _id: req.params.id
     }).then(SubCategory => res.json(SubCategory)).catch(err => res.json({message: "Problem in finding With this Id", variant: "error"}));
   }
@@ -153,8 +147,7 @@ router.get(
 // @desc    route to update/edit subCategory
 // @access  PRIVATE
 async function updateMe(req,res,subCategoryValues){
-  var des = req.user.designation;
- if (des == "Admin" ) {
+
   SubCategory.findOneAndUpdate(
     { _id: req.params.id },
     { $set: subCategoryValues },
@@ -170,37 +163,22 @@ async function updateMe(req,res,subCategoryValues){
       }
     }        
     )
-
     .catch(err =>
       console.log("Problem in updating subCategory value" + err)
     );
-  } 
-else {
-
-  res.json({ message: "Don't have permission", variant: "error" })
-}
-
-
-
 }
 
 router.post(
   "/:id",
   passport.authenticate("jwt", { session: false }),
   async(req, res) => {
-    let Cat1 = await SubCategory.findOne({ _id: req.params.id}).catch(err =>console.log(err))
 
-let Cour1 = await SubCategory.find({'subCategory.link':Cat1.link}).catch(err => console.log(err))
-if (Cour1.length >= 1){
-  res.json({ message: "Child Exist", variant: "error" })
-}else{
-    var des = req.user.designation;
-    var des1 = "Admin";
-    var des2 = "Manager";
-// here we are checking designation in last step, that is in funtion called
-   if (des == des1 || des == des2  ) {
-    const subCategoryValues = { };
-
+    
+    const subCategoryValues = {    image:{},
+    logo:{},
+    category:{}
+   };
+    subCategoryValues.user = req.user.id;
     if(req.body.subCategoryName)subCategoryValues.subCategoryName = req.body.subCategoryName;
    //link start
     if(req.body.link){
@@ -212,10 +190,13 @@ if (Cour1.length >= 1){
     };
 
 //link end
-    if(req.body.logo)subCategoryValues.logo = req.body.logo;
-    if(req.body.description)subCategoryValues.description = req.body.description;
-    if(req.body.image)subCategoryValues.image = req.body.image;
-
+if( req.body.category.categoryName)subCategoryValues.category.categoryName = req.body.category.categoryName;
+if(req.body.category.link)subCategoryValues.category.link = req.body.category.link;
+if(req.body.imageUrl)subCategoryValues.image.url = req.body.imageUrl;
+if(req.body.imageId)subCategoryValues.image.publicId = req.body.imageId;
+if(req.body.logoUrl)subCategoryValues.logo.url = req.body.logoUrl;
+if(req.body.logoId)subCategoryValues.logo.publicId = req.body.logoId;
+if(req.body.description)subCategoryValues.description = req.body.description;
     SubCategory.findOne({subCategoryName: subCategoryValues.subCategoryName})
           .then(subCategory => {
             if(subCategory){
@@ -267,27 +248,47 @@ res.json({message: "This Link Already Exist", variant: "error"})
           })
           .catch(err => console.log(`Error in title matching ${err}`))
 
-
-   
-
-    } else {
-      res.json({ message: "You are not Authorised", variant: "error" })
-    }
-  }}
+}
 );
 
+///////
+// /api/v1/addition/subCategory/delete/:id
+router.delete(
+  "/delete/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+
+    const id = req.params.id;
+    SubCategory.findOne({ _id: id }).then(catData => {
+      if (catData) {
+        SubCategory.findOneAndDelete({ _id: id })
+          .then(() =>
+            res.json({ message: "Deleted successfully", variant: "success" })
+          )
+          .catch(err =>
+            res.json("Failed to delete due to this error - " + err)
+          );
+      } else {
+        res
+          .status(400)
+          .json({ message: "subCategory Not Found", variant: "error" });
+      }
+    });
+ 
+  }
+);
 
 // @type    GET
-//@route    /api/v1/addition/subCategory/allsubcategory/:searchcategory
+//@route    /api/v1/addition/subCategory/allsubCategory/:searchsubCategory
 // @desc    route for searching of subCategory from searchbox using any text
 // @access  PRIVATE
 router.get(
-  "/allsubcategory/:searchsubcategory",
+  "/allsubCategory/:searchsubCategory",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     var des = req.user.designation;
     var des1 = "Admin";
-    const search = req.params.searchsubcategory;
+    const search = req.params.searchsubCategory;
 
     if (des == des1   ) {
     if (isNaN(search)) {

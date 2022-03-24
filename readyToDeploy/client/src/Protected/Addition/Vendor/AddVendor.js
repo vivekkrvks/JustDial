@@ -25,29 +25,60 @@ const theme = createTheme();
 export default function AddVendor() {
 	const classes = useStyles();
 	const [id, setId] = useState("");
-	const [title, setTitle] = useState("");
 	const [link, setLink] = useState("");
-	const [highlight, setHighlight] = useState("");
-	const [image, setImage] = useState("");
-	const [description, setDescription] = useState("");
-	const [allCat, setAllCat] = useState([]);
+	const [state, setState] = useState("");
+	const [district, setDistrict] = useState("");
+	const [city, setCity] = useState("");
+	const [area, setArea] = useState("");
+	const [pincode, setPincode] = useState("");
+	const [landmark, setLandmark] = useState("");
+	const [registrationNo, setRegistrationNo] = useState("");
+	const [receiptNo, setReceiptNo] = useState("");
+	const [contactPersonName, setContactPersonName] = useState("");
+	const [contactNo, setContactNo] = useState("");
+	const [businessName, setBusinessName] = useState("");
+	const [emailId, setEmailId] = useState("");
+	const [website, setWebsite] = useState("");
+
+	const [allCategory, setAllCategory] = useState([]);
+	const [category, setCategory] = useState({
+		categoryName:"",
+link:""
+	});
+	const [allSubCategory, setAllSubCategory] = useState([]);
+	const [subCategory, setSubCategory] = useState({
+		subCategoryName:"",
+link:""
+	}); 
+	const [allMyServices, setAllMyServices] = useState([]);
+	const [myServices, setMyServices] = useState({
+		serviceName:"",
+link:""
+	});
+
+	const [yearEstablished, setYearEstablished] = useState("");
+	const [modesofPayment, setModesofPayment] = useState("");
+	const [latitude, setLatitude] = useState("");
+	const [longitude, setLongitude] = useState("");
+	
+
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [err] = useState({ errIn: "", msg: "" });
 	const snackRef = useRef();
 	useEffect(() => {
-		getData("");
+		getCategory();
 	}, []);
 
 	const getData = async (word) => {
 		await axios
 			.get(`/api/test/Vendor/allVendor/${word}`)
-			.then((res) => setAllCat(res.data))
+			.then((res) => setAllCategory(res.data))
 			.catch((err) => console.log(err));
 	};
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		let newCat = { _id: id, VendorTitle: title, highlight, image, link, description };
+		let newCat = { _id: id,  };
 		await axios
 			.post(`/api/test/Vendor/${id}`, newCat)
 			.then((res) => {
@@ -59,41 +90,40 @@ export default function AddVendor() {
 	};
 	const handleClear = () => {
 		setId("");
-		setTitle("");
-		setLink("");
-		setImage("");
-		setHighlight("");
-		setDescription("");
+		
 	};
-	const setData = async (id) => {
-		await axios
-			.get(`/api/test/Vendor/get/${id}`)
-			.then((res) => {
-				setId(res.data[0]._id);
-				setTitle(res.data[0].VendorTitle);
-				setLink(res.data[0].link);
-				setImage(res.data[0].image);
-				setHighlight(res.data[0].highlight);
-				setDescription(res.data[0].description);
-			})
+
+	const getCategory = () => {
+		axios
+			.get(`/api/v1/other/primaryDdd/get/namelink`)
+			.then((res) => setAllCategory(res.data))
 			.catch((err) => console.log(err));
-	};
-	const imgUpload = async (e) => {
-		if (e) {
-			const selectedFile = e;
-			const imgData = new FormData();
-			imgData.append("photo", selectedFile, selectedFile.name);
-			await axios
-				.post(`/api/other/fileupload/upload`, imgData, {
-					headers: {
-						accept: "application/json",
-						"Accept-Language": "en-US,en;q=0.8",
-						"Content-Type": `multipart/form-data; boundary=${imgData._boundary}`,
-					},
-				})
-				.then((res) => setImage(res.data.result.secure_url))
-				.catch((err) => console.log(err));
-		}
+	
+		};
+		const getSubCategory = (v) => {
+			if (v) {
+				axios
+					.get(`/api/v1/other/primaryDdd/get/${v.link}`)
+					.then((res) => {setAllSubCategory(res.data)})	
+					.catch((err) => console.log(err));
+			}
+		};
+		const getMyServices = (v) => {
+			if (v) {
+				axios
+					.get(`/api/v1/other/primaryDdd/getServices/${v.link}`)
+					.then((res) => {setAllMyServices(res.data);console.log(res.data);console.log({v})})	
+					.catch((err) => console.log(err));
+			}
+		};
+
+	const handleDelete = (id) => {
+		axios
+			.delete(`/api/v1/addition/myServices/delete/${id}`)
+			.then((res) => alert(res.data.message))
+			.then(() => getData(""))
+			.catch((err) => console.log(err));
+		handleClear();
 	};
 	const handleErr = (errIn) => {
 		switch (errIn) {
@@ -138,47 +168,75 @@ export default function AddVendor() {
 							</Grid>
 						
             {/* data --- State	 */}
-              <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type State" label="SEARCH State" />}
-              />
+              <Grid item xs={12} md={6}> 
+			  <Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={state}
+										renderInput={(params) => <TextField {...params} variant="outlined" label="SEARCH State" />}
+									/>               
+      
               </Grid>
             {/* data --- District		 */}
               <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type District" label="SEARCH District" />}
+        <Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={district}
+               							renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type District" label="SEARCH District" />}
               />
               </Grid>
             {/* data --- City		 */}
-              <Grid item xs={12} md={6}>                
-              <Autocomplete
-              			required
-              options={testData}
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type City" label="SEARCH City" />}
+              					<Grid item xs={12} md={6}>                
+       									 <Autocomplete
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={city} 
+               renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type City" label="SEARCH City" />}
               />
               </Grid>
             {/* data --- Area		 */}
               <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Area" label="SEARCH Area" />}
+        <Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={area}
+               renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type Area" label="SEARCH Area" />}
               />
               </Grid>
               
@@ -188,12 +246,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Pincode"}
+									onBlur={() => handleErr("pincode")}
+									error={err.errIn === "pincode" ? true : false}
+									label={err.errIn === "pincode" ? err.msg : "Pincode"}
 									placeholder="Enter Pincode"
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={pincode}
+									onChange={(e) => setPincode(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -202,12 +260,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Landmark"}
+									onBlur={() => handleErr("landmark")}
+									error={err.errIn === "landmark" ? true : false}
+									label={err.errIn === "landmark" ? err.msg : "Landmark"}
 									placeholder="Enter Landmark..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={landmark}
+									onChange={(e) => setLandmark(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -216,12 +274,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Registration No	"}
+									onBlur={() => handleErr("registrationNo")}
+									error={err.errIn === "registrationNo" ? true : false}
+									label={err.errIn === "registrationNo" ? err.msg : "Registration No	"}
 									placeholder="Enter Registration No..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={registrationNo}
+									onChange={(e) => setRegistrationNo(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -230,12 +288,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Receipt no "}
+									onBlur={() => handleErr("receiptNo")}
+									error={err.errIn === "receiptNo" ? true : false}
+									label={err.errIn === "receiptNo" ? err.msg : "Receipt no "}
 									placeholder="Enter Receipt no..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={receiptNo}
+									onChange={(e) => setReceiptNo(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -244,12 +302,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Contact Person Name	"}
+									onBlur={() => handleErr("contactPersonName")}
+									error={err.errIn === "contactPersonName" ? true : false}
+									label={err.errIn === "contactPersonName" ? err.msg : "Contact Person Name	"}
 									placeholder="Enter Contact Person Name..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={contactPersonName}
+									onChange={(e) => setContactPersonName(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -258,12 +316,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Contact No "}
+									onBlur={() => handleErr("contactNo")}
+									error={err.errIn === "contactNo" ? true : false}
+									label={err.errIn === "contactNo" ? err.msg : "Contact No "}
 									placeholder="Enter Contact No..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={contactNo}
+									onChange={(e) => setContactNo(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -272,12 +330,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Shop/Business Name "}
+									onBlur={() => handleErr("businessName")}
+									error={err.errIn === "businessName" ? true : false}
+									label={err.errIn === "businessName" ? err.msg : "Shop/Business Name "}
 									placeholder="Enter Shop/Business Name..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={businessName}
+									onChange={(e) => setBusinessName(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -286,12 +344,12 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Email Id"}
+									onBlur={() => handleErr("emailId")}
+									error={err.errIn === "emailId" ? true : false}
+									label={err.errIn === "emailId" ? err.msg : "Email Id"}
 									placeholder="Enter Email Id..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={emailId}
+									onChange={(e) => setEmailId(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -300,62 +358,101 @@ export default function AddVendor() {
 									required
 									fullWidth
 									inputProps={{ maxLength: "42" }}
-									onBlur={() => handleErr("title")}
-									error={err.errIn === "title" ? true : false}
-									label={err.errIn === "title" ? err.msg : "Website "}
+									onBlur={() => handleErr("website")}
+									error={err.errIn === "website" ? true : false}
+									label={err.errIn === "website" ? err.msg : "Website "}
 									placeholder="Enter Website..."
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
+									value={website}
+									onChange={(e) => setWebsite(e.target.value)}
 								/>
 							</Grid>
+							<Grid item xs={12} md={6}>
+									<Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											setCategory(v);
+											getSubCategory(v);
+											setSubCategory({
+												subCategoryName:"",
+link:""
+											});
+											setMyServices({
+												serviceName:"",
+link:""
+											});
+										}}
+										value={category}
+										renderInput={(params) => <TextField {...params} variant="outlined" label="Select Category" />}
+									/>
+								</Grid>
+							<Grid item xs={12} md={6}>
+									<Autocomplete
+										
+										options={allSubCategory}
+										filterSelectedOptions
+										getOptionLabel={(option) => option.subCategoryName}
+										onChange={(e, v) => {
+											setSubCategory(v);
+											getMyServices(v);
+											setMyServices({
+												serviceName:"",
+link:""
+											});
+										}}
+										value={subCategory}
+										renderInput={(params) => <TextField {...params} variant="outlined" label="Select SubCategory" />}
+									/>
+								</Grid>
+							<Grid item xs={12} md={6}>
+									<Autocomplete
+										
+										options={allMyServices}
+										filterSelectedOptions
+										getOptionLabel={(option) => option.serviceName}
+										onChange={(e, v) => {
+											setMyServices(v);
+											
+										}}
+										value={myServices}
+										renderInput={(params) => <TextField {...params} variant="outlined" label="Select Services" />}
+									/>
+								</Grid>
+								{/* // drop down ends */}
               <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Category" label="SEARCH Category" />}
+        <Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={yearEstablished}
+               renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type Year Established" label="SEARCH Year Established" />}
               />
               </Grid>
               <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Subcategory" label="SEARCH Subcategory" />}
-              />
-              </Grid>
-              <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Services" label="SEARCH Services" />}
-              />
-              </Grid>
-              <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Year Established" label="SEARCH Year Established" />}
-              />
-              </Grid>
-              <Grid item xs={12} md={6}>                
-              <Autocomplete
-              options={testData}
-              required
-              // onChange={(e, v) => SRDispatch({ type: SETSCHEME, payload:v })}
-              // getOptionLabel={(option) => option}
-             // value={SRState.schemeName} 
-               renderInput={(params) => <TextField {...params} placeholder="Type Mods of Payment" label="SEARCH Mods of Payment" />}
+        <Autocomplete
+										
+										options={allCategory}
+										filterSelectedOptions
+										//getOptionLabel={(option) => option.categoryName}
+										onChange={(e, v) => {
+											// setCategory(v);
+											// getSubCategory(v);
+											// setSubCategory({
+											// 	subCategoryName:""
+											// });
+										}}
+										value={modesofPayment}
+               renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type Mods of Payment" label="SEARCH Mods of Payment" />}
               />
               </Grid>
          
@@ -373,16 +470,7 @@ export default function AddVendor() {
 										<Fab size="small" color="secondary" onClick={() => handleClear()} className={classes.button}>
 											<MdClearAll />
 										</Fab>
-									</Tooltip>
-									{image !== "" && (
-										<a href={image} target="_blank" rel="noopener noreferrer">
-											<Tooltip title="Image">
-												<Fab size="small" color="secondary" className={classes.button}>
-													<MdPanorama />
-												</Fab>
-											</Tooltip>
-										</a>
-									)}
+									</Tooltip>								
 								</center>
 							</Grid>
 						</Grid>

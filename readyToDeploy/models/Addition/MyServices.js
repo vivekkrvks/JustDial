@@ -2,12 +2,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const SubCategorySchema = new Schema({
+const MyServicesSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: "myUser"
       },
-      subCategoryName:{
+      serviceName:{
        type:String,
        required:true
    },
@@ -26,37 +26,20 @@ const SubCategorySchema = new Schema({
        }
     
     },
-   image:{
-    url:{
-     type:String,
-     // required:true
+   subCategory:{
+    subCategoryName:{
+           type:String,
+        //    required:true
+       },
+       link:{
+            type:String,
+            // required:true
+       }
+    
     },
-    publicId:{
-     type:String,
-     // required:true
-    }
-    },
+
   
-   image:{
-       url:{
-        type:String,
-        // required:true
-       },
-       publicId:{
-        type:String,
-        // required:true
-       }
-   },
-   logo:{
-       url:{
-        type:String,
-        // required:true
-       },
-       publicId:{
-        type:String,
-        // required:true
-       }
-   },
+  
    description:{
        type:String,
        default:""
@@ -73,7 +56,7 @@ const SubCategorySchema = new Schema({
 
 });
 
-module.exports = SubCategory = mongoose.model("mySubCategory", SubCategorySchema);
+module.exports = MyServices = mongoose.model("myMyServices", MyServicesSchema);
 
 
 // /category

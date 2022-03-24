@@ -16,7 +16,17 @@ const theme = createTheme();
 
 export default function ImagePreviewDelete(props) {
 	const snackRef = useRef();
-
+	const handleUpdate = async (data) => {
+		let myId = props.dataId
+		console.log({myId})
+		if(props.dataId !== undefined && props.dataId !== ""){
+	
+		let newCat = data
+		await axios
+			.post(`/api/v1/addition/category/${props.dataId}`, newCat)			
+			.catch((err) => console.log(err));
+		}
+	};
 	const deleteImage = async (id) => {
 		console.log(id)
 		await axios
@@ -26,9 +36,10 @@ export default function ImagePreviewDelete(props) {
 				console.log("res.data.message")
 				if(props.type == "Image"){
 					props.clearImage();
-
+					handleUpdate({"imageUrl":"","imageId":""})
 				}
 				if(props.type == "Logo"){
+					handleUpdate({"logoUrl":"","logoId":""})
 				 props.clearLogo();
 				}
 				
