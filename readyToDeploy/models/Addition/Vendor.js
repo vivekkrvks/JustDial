@@ -85,7 +85,7 @@ subCategory:{
     }
  
  },
-   services:{
+ myServices:{
     serviceName:{
         type:String,
      //    required:true

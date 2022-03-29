@@ -18,7 +18,6 @@ router.post(
   "/",
    passport.authenticate("jwt", { session: false }),
   async (req, res) => {
- 
     const serviceValues = {
    
       category:{},
@@ -36,10 +35,10 @@ router.post(
     });
     serviceValues.link = rests;
 //link end
-    serviceValues.state = req.body.state;
-    serviceValues.district = req.body.district;
-    serviceValues.city = req.body.city;
-    serviceValues.area = req.body.area;
+    // serviceValues.state = req.body.state;
+    // serviceValues.district = req.body.district;
+    // serviceValues.city = req.body.city;
+    // serviceValues.area = req.body.area;
     serviceValues.pincode = req.body.pincode;
     serviceValues.landmark = req.body.landmark;
     serviceValues.registrationNo = req.body.registrationNo;
@@ -49,13 +48,15 @@ router.post(
     serviceValues.businessName = req.body.businessName;
     serviceValues.emailId = req.body.emailId;
     serviceValues.website = req.body.website;
+    serviceValues.latitude = req.body.latitude;
+    serviceValues.longitude = req.body.longitude;
 
     serviceValues.category.categoryName = req.body.category.categoryName;
     serviceValues.category.link = req.body.category.link;
     serviceValues.subCategory.subCategoryName = req.body.subCategory.subCategoryName;
     serviceValues.subCategory.link = req.body.subCategory.link;
-    serviceValues.services.serviceName = req.body.services.serviceName;
-    serviceValues.services.link = req.body.services.link;
+    serviceValues.myServices.serviceName = req.body.myServices.serviceName;
+    serviceValues.myServices.link = req.body.myServices.link;
 
 
 if (req.body.description == ""){

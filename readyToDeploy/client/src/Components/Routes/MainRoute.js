@@ -12,6 +12,7 @@ import App from "../../App";
 import GetVendor from "../../Protected/GetData/GetVendor";
 import ToCheck from "../../Protected/ToCheck";
 import AddEmployee from "../../Protected/User/AddEmployee";
+import LocationMaster from "../../Protected/DropDown/LocationMaster";
 export default function MainRoute() {
 	return (
 		<Routes>
@@ -26,6 +27,7 @@ export default function MainRoute() {
         <Route  path="/GetVendor" element={<GetVendor />} />
         <Route  path="/check" element={<ToCheck />} />
         <Route  path="/AddEmployee" element={<AddEmployee />} />
+        <Route  path="/LocationMaster" element={<LocationMaster />} />
         
     	</Routes>
 	);

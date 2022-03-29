@@ -12,14 +12,15 @@ import {
   Autocomplete,
   Link,
   IconButton,
+  Button,
 } from "@mui/material";
 import axios from "axios";
-import { MdSearch, MdDoneAll, MdClearAll, MdPanorama } from "react-icons/md";
+import { MdDoneAll, MdClearAll } from "react-icons/md";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CommonDash from "./../../MyDashboard/CommonDash"
 import AlertDialog from "./alertDialog";
 import FindInPageIcon from '@mui/icons-material/FindInPage';
-
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 const theme = createTheme();
 
 export default function AddVendor() {
@@ -55,43 +56,118 @@ link:""
 		serviceName:"",
 link:""
 	});
-
+	
 	const [yearEstablished, setYearEstablished] = useState("");
 	const [modesofPayment, setModesofPayment] = useState("");
 	const [latitude, setLatitude] = useState("");
 	const [longitude, setLongitude] = useState("");
-	
+	const [status, setStatus] = useState("Click the button");
 
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(10);
 	const [err] = useState({ errIn: "", msg: "" });
 	const snackRef = useRef();
 	useEffect(() => {
 		getCategory();
 	}, []);
-
-	const getData = async (word) => {
-		await axios
-			.get(`/api/test/Vendor/allVendor/${word}`)
-			.then((res) => setAllCategory(res.data))
-			.catch((err) => console.log(err));
-	};
+	const handleChange=(value,name,type)=>{
+		if(type==="text"){
+		   var re = /^[A-Za-z_ ]*$/;
+		   if (value === '' || re.test(value)) {
+			  switch (name) {
+				 case "landmark":
+					setLandmark(value)
+					break;
+				
+				 default:
+					break;
+			  }
+		   }
+  
+		}else if(type==="number"){
+		   const re = /^[0-9\b]+$/;
+		   if (value === '' || re.test(value)) {
+			 switch (name) {
+				case "pincode":
+					setPincode(value)
+				   break;
+				
+				default:
+				   break;
+			 }
+		   }
+		}
+	   
+	}
 	const handleSubmit = async (e) => {
+		console.log("submit");
 		e.preventDefault();
-		let newCat = { _id: id,  };
+		let newCat = { _id: id, 
+			link,state,district,city,area,pincode,landmark,
+			registrationNo,receiptNo,contactPersonName,
+			contactNo,businessName,emailId,website,
+			category,subCategory,myServices,
+			yearEstablished,
+			latitude,longitude,
+			modesofPayment,
+
+		};
 		await axios
-			.post(`/api/test/Vendor/${id}`, newCat)
+			.post(`/api/v1/addition/vendor/${id}`, newCat)
 			.then((res) => {
 				snackRef.current.handleSnack(res.data);
-				getData("");
 				handleClear();
 			})
 			.catch((err) => console.log(err));
 	};
 	const handleClear = () => {
 		setId("");
+		setLink("");
+		setState("");
+		setDistrict("");
+		setCity("");
+		setArea("");
+		setPincode("");
+		setLandmark("");
+		setRegistrationNo("");
+		setReceiptNo("");
+		setContactPersonName("");
+		setContactNo("");
+		setBusinessName("");
+		setEmailId("");
+		setWebsite("");
+		setCategory({
+			categoryName:"",
+link:""
+		});
+		setSubCategory({
+			subCategoryName:"",
+link:""
+		});
+		setMyServices({
+			serviceName:"",
+link:""
+		});
+		setYearEstablished("");
+		setModesofPayment("");
+		setLatitude("");
+		setLongitude("");
+		
 		
 	};
+
+	const getLocation = () => {
+		if (!navigator.geolocation) {
+		  setStatus('Geolocation is not supported by your browser');
+		} else {
+		  setStatus('Locating...');
+		  navigator.geolocation.getCurrentPosition((position) => {
+			setStatus("");
+			setLatitude(position.coords.latitude);
+			setLongitude(position.coords.longitude);
+		  }, () => {
+			setStatus('Unable to retrieve your location');
+		  });
+		}
+	  }
 
 	const getCategory = () => {
 		axios
@@ -121,7 +197,6 @@ link:""
 		axios
 			.delete(`/api/v1/addition/myServices/delete/${id}`)
 			.then((res) => alert(res.data.message))
-			.then(() => getData(""))
 			.catch((err) => console.log(err));
 		handleClear();
 	};
@@ -171,11 +246,11 @@ link:""
               <Grid item xs={12} md={6}> 
 			  <Autocomplete
 										
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
+											setState(v);
 											// getSubCategory(v);
 											// setSubCategory({
 											// 	subCategoryName:""
@@ -190,11 +265,11 @@ link:""
               <Grid item xs={12} md={6}>                
         <Autocomplete
 										
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
+											setDistrict(v);
 											// getSubCategory(v);
 											// setSubCategory({
 											// 	subCategoryName:""
@@ -207,15 +282,12 @@ link:""
             {/* data --- City		 */}
               					<Grid item xs={12} md={6}>                
        									 <Autocomplete
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
-											// getSubCategory(v);
-											// setSubCategory({
-											// 	subCategoryName:""
-											// });
+											setCity(v);
+										
 										}}
 										value={city} 
                renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type City" label="SEARCH City" />}
@@ -225,15 +297,12 @@ link:""
               <Grid item xs={12} md={6}>                
         <Autocomplete
 										
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
-											// getSubCategory(v);
-											// setSubCategory({
-											// 	subCategoryName:""
-											// });
+											setArea(v);
+										
 										}}
 										value={area}
                renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type Area" label="SEARCH Area" />}
@@ -245,13 +314,14 @@ link:""
 									variant="outlined"
 									required
 									fullWidth
-									inputProps={{ maxLength: "42" }}
+									inputProps={{ maxLength: "42",
+									 inputMode: 'numeric', pattern: '[0-9]*' }}
 									onBlur={() => handleErr("pincode")}
 									error={err.errIn === "pincode" ? true : false}
 									label={err.errIn === "pincode" ? err.msg : "Pincode"}
 									placeholder="Enter Pincode"
 									value={pincode}
-									onChange={(e) => setPincode(e.target.value)}
+									onChange={(e) =>handleChange(e.target.value,"pincode","number") }
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -265,7 +335,7 @@ link:""
 									label={err.errIn === "landmark" ? err.msg : "Landmark"}
 									placeholder="Enter Landmark..."
 									value={landmark}
-									onChange={(e) => setLandmark(e.target.value)}
+									onChange={(e) => handleChange(e.target.value,"landmark","text") }
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -336,6 +406,20 @@ link:""
 									placeholder="Enter Shop/Business Name..."
 									value={businessName}
 									onChange={(e) => setBusinessName(e.target.value)}
+								/>
+							</Grid>
+              <Grid item xs={12} md={6}>  
+								<TextField
+									variant="outlined"
+									required
+									fullWidth
+									inputProps={{ maxLength: "42" }}
+									onBlur={() => handleErr("link")}
+									error={err.errIn === "link" ? true : false}
+									label={err.errIn === "link" ? err.msg : "link "}
+									placeholder="Enter Shop/Business Name..."
+									value={link}
+									onChange={(e) => setLink(e.target.value)}
 								/>
 							</Grid>
               <Grid item xs={12} md={6}>  
@@ -424,11 +508,11 @@ link:""
               <Grid item xs={12} md={6}>                
         <Autocomplete
 										
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
+											setYearEstablished(v);
 											// getSubCategory(v);
 											// setSubCategory({
 											// 	subCategoryName:""
@@ -438,14 +522,26 @@ link:""
                renderInput={(params) => <TextField {...params} variant="outlined" placeholder="Type Year Established" label="SEARCH Year Established" />}
               />
               </Grid>
+              <Grid item xs={12} md={6}>   
+			  <p>            
+			    <Button variant="outlined" startIcon={<AddLocationAltIcon />}
+				onClick={() => getLocation()}
+				>
+        Get Location
+      </Button> 
+      {" "+ status}
+	  <Link target="_blank" href={"https://maps.google.com/?q="+latitude+","+longitude} >
+      {latitude && (" Latitude:" + latitude)}
+      {longitude && (" Longitude:" + longitude)} </Link></p>
+              </Grid>
               <Grid item xs={12} md={6}>                
         <Autocomplete
 										
-										options={allCategory}
+										options={testData}
 										filterSelectedOptions
-										//getOptionLabel={(option) => option.categoryName}
+										getOptionLabel={(option) => option.label}
 										onChange={(e, v) => {
-											// setCategory(v);
+											setModesofPayment(v);
 											// getSubCategory(v);
 											// setSubCategory({
 											// 	subCategoryName:""
@@ -462,15 +558,20 @@ link:""
 							</Grid>
 							<Grid item xs={12}>
 								<center>
-									<Tooltip title={id === "" ? "Save" : "Update"}>
-                  <AlertDialog />
-						
-									</Tooltip>
+								 <Tooltip title={id === "" ? "Save" : "Update"}>
+										<Fab color="primary" type="submit" className={classes.button}>
+											<MdDoneAll />
+										</Fab>
+									</Tooltip> 
+									 {/* <Tooltip title={id === "" ? "Save" : "Update"}>
+                  <AlertDialog />						
+									</Tooltip>  */}
 									<Tooltip title="Clear All">
 										<Fab size="small" color="secondary" onClick={() => handleClear()} className={classes.button}>
 											<MdClearAll />
 										</Fab>
 									</Tooltip>								
+															
 								</center>
 							</Grid>
 						</Grid>
@@ -495,125 +596,5 @@ const testData = [
   { label: 'The Shawshank Redemption', year: 1994 },
   { label: 'The Godfather', year: 1972 },
   { label: 'The Godfather: Part II', year: 1974 },
-  { label: 'The Dark Knight', year: 2008 },
-  { label: '12 Angry Men', year: 1957 },
-  { label: "Schindler's List", year: 1993 },
-  { label: 'Pulp Fiction', year: 1994 },
-  {
-    label: 'The Lord of the Rings: The Return of the King',
-    year: 2003,
-  },
-  { label: 'The Good, the Bad and the Ugly', year: 1966 },
-  { label: 'Fight Club', year: 1999 },
-  {
-    label: 'The Lord of the Rings: The Fellowship of the Ring',
-    year: 2001,
-  },
-  {
-    label: 'Star Wars: Episode V - The Empire Strikes Back',
-    year: 1980,
-  },
-  { label: 'Forrest Gump', year: 1994 },
-  { label: 'Inception', year: 2010 },
-  {
-    label: 'The Lord of the Rings: The Two Towers',
-    year: 2002,
-  },
-  { label: "One Flew Over the Cuckoo's Nest", year: 1975 },
-  { label: 'Goodfellas', year: 1990 },
-  { label: 'The Matrix', year: 1999 },
-  { label: 'Seven Samurai', year: 1954 },
-  {
-    label: 'Star Wars: Episode IV - A New Hope',
-    year: 1977,
-  },
-  { label: 'City of God', year: 2002 },
-  { label: 'Se7en', year: 1995 },
-  { label: 'The Silence of the Lambs', year: 1991 },
-  { label: "It's a Wonderful Life", year: 1946 },
-  { label: 'Life Is Beautiful', year: 1997 },
-  { label: 'The Usual Suspects', year: 1995 },
-  { label: 'Léon: The Professional', year: 1994 },
-  { label: 'Spirited Away', year: 2001 },
-  { label: 'Saving Private Ryan', year: 1998 },
-  { label: 'Once Upon a Time in the West', year: 1968 },
-  { label: 'American History X', year: 1998 },
-  { label: 'Interstellar', year: 2014 },
-  { label: 'Casablanca', year: 1942 },
-  { label: 'City Lights', year: 1931 },
-  { label: 'Psycho', year: 1960 },
-  { label: 'The Green Mile', year: 1999 },
-  { label: 'The Intouchables', year: 2011 },
-  { label: 'Modern Times', year: 1936 },
-  { label: 'Raiders of the Lost Ark', year: 1981 },
-  { label: 'Rear Window', year: 1954 },
-  { label: 'The Pianist', year: 2002 },
-  { label: 'The Departed', year: 2006 },
-  { label: 'Terminator 2: Judgment Day', year: 1991 },
-  { label: 'Back to the Future', year: 1985 },
-  { label: 'Whiplash', year: 2014 },
-  { label: 'Gladiator', year: 2000 },
-  { label: 'Memento', year: 2000 },
-  { label: 'The Prestige', year: 2006 },
-  { label: 'The Lion King', year: 1994 },
-  { label: 'Apocalypse Now', year: 1979 },
-  { label: 'Alien', year: 1979 },
-  { label: 'Sunset Boulevard', year: 1950 },
-  {
-    label: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-    year: 1964,
-  },
-  { label: 'The Great Dictator', year: 1940 },
-  { label: 'Cinema Paradiso', year: 1988 },
-  { label: 'The Lives of Others', year: 2006 },
-  { label: 'Grave of the Fireflies', year: 1988 },
-  { label: 'Paths of Glory', year: 1957 },
-  { label: 'Django Unchained', year: 2012 },
-  { label: 'The Shining', year: 1980 },
-  { label: 'WALL·E', year: 2008 },
-  { label: 'American Beauty', year: 1999 },
-  { label: 'The Dark Knight Rises', year: 2012 },
-  { label: 'Princess Mononoke', year: 1997 },
-  { label: 'Aliens', year: 1986 },
-  { label: 'Oldboy', year: 2003 },
-  { label: 'Once Upon a Time in America', year: 1984 },
-  { label: 'Witness for the Prosecution', year: 1957 },
-  { label: 'Das Boot', year: 1981 },
-  { label: 'Citizen Kane', year: 1941 },
-  { label: 'North by Northwest', year: 1959 },
-  { label: 'Vertigo', year: 1958 },
-  {
-    label: 'Star Wars: Episode VI - Return of the Jedi',
-    year: 1983,
-  },
-  { label: 'Reservoir Dogs', year: 1992 },
-  { label: 'Braveheart', year: 1995 },
-  { label: 'M', year: 1931 },
-  { label: 'Requiem for a Dream', year: 2000 },
-  { label: 'Amélie', year: 2001 },
-  { label: 'A Clockwork Orange', year: 1971 },
-  { label: 'Like Stars on Earth', year: 2007 },
-  { label: 'Taxi Driver', year: 1976 },
-  { label: 'Lawrence of Arabia', year: 1962 },
-  { label: 'Double Indemnity', year: 1944 },
-  {
-    label: 'Eternal Sunshine of the Spotless Mind',
-    year: 2004,
-  },
-  { label: 'Amadeus', year: 1984 },
-  { label: 'To Kill a Mockingbird', year: 1962 },
-  { label: 'Toy Story 3', year: 2010 },
-  { label: 'Logan', year: 2017 },
-  { label: 'Full Metal Jacket', year: 1987 },
-  { label: 'Dangal', year: 2016 },
-  { label: 'The Sting', year: 1973 },
-  { label: '2001: A Space Odyssey', year: 1968 },
-  { label: "Singin' in the Rain", year: 1952 },
-  { label: 'Toy Story', year: 1995 },
-  { label: 'Bicycle Thieves', year: 1948 },
-  { label: 'The Kid', year: 1921 },
-  { label: 'Inglourious Basterds', year: 2009 },
-  { label: 'Snatch', year: 2000 },
-  { label: '3 Idiots', year: 2009 },
-  { label: 'Monty Python and the Holy Grail', year: 1975 },
+ 
 ];
